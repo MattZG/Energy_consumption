@@ -1,17 +1,55 @@
-# Proyecto: Consumo de energia
+# Proyecto: Consumo de Energía y Huella de Carbono
 
 ## Objetivo
 
-Aplicar series de tiempo para predecir el consumo energia de una planta de acero
+Predecir la emisión de CO2 en plantas de acero mediante algoritmos de regresión supervisada y modelizar series de tiempo para entender patrones de consumo energético.
 
-## Etapas del proyecto
+## Estado del Proyecto (Revisión: 2026-05-05)
 
-1.- Calidad de datos
+### Checklist de Etapas
 
-2.- EDA
+- [x] **1. Setup** — Estructura del proyecto, dataset original y de trabajo creados
+- [x] **2. Calidad de datos** — Análisis de nulidad, duplicados y tipos de datos completado
+- [x] **3. EDA** — Análisis estadístico y gráficos con conclusiones por variable
+- [x] **4. Preprocesamiento** — OneHotEncoding y StandardScaler aplicados
+- [x] **5. Entrenamiento** — GridSearchCV (279 configuraciones), RandomForest seleccionado
+- [x] **6. Análisis de resultados** — RMSE=0.089, R²=0.992 (documentado en notebook)
+- [x] **7. Series de tiempo** — ARIMA aplicado para CO2 (MAE=0.0217) y Usage_kWh
+- [ ] **8. Selección de features** — Feature importances calculadas (pendiente exportar configuración)
+- [ ] **9. Preproducción** — Pendiente (crear dataset de validación y métricas)
+- [ ] **10. Producción** — Pendiente (exportar artefactos .joblib y pipeline completa)
+- [ ] **11. Aplicación** — Pendiente (desarrollar app.py)
 
-3.- Transformacion de los datos
+### Etapa Actual
 
-4.- Modelizacion Supervisada
+**En transición:** El ciclo de desarrollo está completo (análisis → modelado → series de tiempo). Pendiente la etapa de industrialización: exportar artefactos, estructurar resultados y crear la aplicación.
 
-5.- Series de tiempo
+### Próximos Pasos
+
+1. Exportar modelos y transformadores a `03_Modelos/01_Historial/`:
+   - `modelo_random_forest.joblib`
+   - `encoder_onehot.joblib`
+   - `scaler_standard.joblib`
+2. Crear `04_Resultados/01_Analisis/` con `feature_importances.json` y `metricas_entrenamiento.json`
+3. Crear dataset de validación en `02_Datos/02_Validacion/`
+4. Desarrollar pipeline de producción y aplicación Python en `05_Aplicacion/`
+
+---
+
+## Notebooks Desarrollados
+
+| Notebook | Descripción |
+|---|---|
+| `01_Set Up.ipynb` | Inicialización y creación de estructura |
+| `02_Calidad_datos.ipynb` | Validación de datos |
+| `03_EDA.ipynb` | Análisis exploratorio con gráficos y conclusiones |
+| `04_Transformacion_de_Variable.ipynb` | Codificación y escalado |
+| `05_Modelizacion_Supervisada.ipynb` | Optimización de hiperparámetros |
+| `06_Series_de_tiempo.ipynb` | ARIMA para CO2 y consumo energético |
+
+## Resultados Principales
+
+- **Modelo supervisado:** RandomForest con R² = 0.992
+- **Variable más importante:** Usage_kWh (99.75% de importancia)
+- **Predicción ARIMA CO2:** MAE = 0.0217
+- **Correlación CO2–Usage_kWh:** 0.988

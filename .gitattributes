@@ -1,0 +1,7 @@
+# Notebooks — evitar conflictos de merge
+*.ipynb merge=union
+
+# Archivos de datos
+*.csv linguist-detectable=false
+*.pickle binary
+*.joblib binary

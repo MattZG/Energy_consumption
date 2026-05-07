@@ -40,6 +40,17 @@ Predecir la emisión de CO2 en plantas de acero mediante algoritmos de regresió
 
 ---
 
+## Fuente de datos
+
+Steel Industry Energy Consumption Dataset
+UCI Machine Learning Repository — ID 851
+DAEWOO Steel Co. Ltd, Gwangyang, Corea del Sur
+Período: 1 enero 2018 – 31 diciembre 2018, granularidad 15 minutos
+35.040 registros
+https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
+
+---
+
 ## Notebooks Desarrollados
 
 | Notebook | Descripción |

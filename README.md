@@ -11,6 +11,10 @@ Predecir la emisión de CO2 en plantas de acero mediante algoritmos de regresió
 - [x] **1. Setup** — Estructura del proyecto, dataset original y de trabajo creados
 - [x] **2. Calidad de datos** — Análisis de nulidad, duplicados y tipos de datos completado
 - [x] **3. EDA** — Análisis estadístico y gráficos con conclusiones por variable
+  - **Variables clave**: `Usage_kWh` (r=0.988 con CO2), `Lagging_Current_Reactive_Power_kVarh` (r=0.887)
+  - **Hallazgo principal**: El 59.9% de los registros tienen CO2=0, correspondiendo a estados operacionales reales (turno nocturno, fines de semana, `Load_Type=Light_Load`)
+  - **Decisión**: No aplicar modelo zero-inflation — incorporar features temporales (`hora`, `turno`) al preprocesamiento
+  - **Gráficos**: `04_Resultados/01_Analisis/` (9 archivos)
 - [x] **4. Preprocesamiento** — OneHotEncoding y StandardScaler aplicados
 - [x] **5. Entrenamiento** — GridSearchCV (279 configuraciones), RandomForest seleccionado
 - [x] **6. Análisis de resultados** — RMSE=0.089, R²=0.992 (documentado en notebook)

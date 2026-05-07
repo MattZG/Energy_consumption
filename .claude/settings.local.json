@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(tree \"C:\\\\Users\\\\matia\\\\GitHub\\\\Energy_consumption\" -L 3)",
+      "PowerShell(python \"C:\\\\Users\\\\matia\\\\GitHub\\\\Energy_consumption\\\\_fix_paths.py\")",
+      "Bash(python -c ' *)",
+      "mcp__ide__executeCode",
+      "Bash(python *)",
+      "Bash(py *)",
+      "PowerShell(py *)",
+      "Bash(git add *)"
+    ]
+  }
+}

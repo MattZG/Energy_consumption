@@ -18,21 +18,20 @@ Predecir la emisión de CO2 en plantas de acero mediante algoritmos de regresió
 - [x] **7. Análisis de resultados** — JSONs de métricas e importancias exportados a `04_Resultados/01_Analisis/` para ambos experimentos
 - [x] **8. Selección de features** — Feature importances calculadas; Exp A dominado por `Usage_kWh` (99.65%), Exp B por `Load_Type_Light_Load` (37.3%) y factores de potencia
 - [x] **9. Exportar artefactos** — Encoders, scalers y modelos exportados como `.joblib` en `03_Modelos/01_Historial/`
-- [ ] **10. Preproducción** — Pendiente: evaluar modelo con `01_Datos/02_Validacion/validacion.csv` y guardar métricas en `04_Resultados/02_Preproduccion/`
+- [x] **10. Preproducción** — Ambos experimentos evaluados sobre 10.512 registros no vistos; métricas guardadas en `04_Resultados/02_Preproduccion/`; ningún modelo muestra overfitting
 - [ ] **11. Producción** — Pendiente: exportar pipeline completa y artefactos `.joblib` a `03_Modelos/`
 - [ ] **12. Aplicación** — Pendiente: desarrollar `app.py` en `05_Aplicacion/`
 
 ### Etapa Actual
 
-**Preproducción — los experimentos A y B están completados y con artefactos exportados.**
+**Producción — preproducción completada, ambos experimentos validados.**
 
-Ambos experimentos han sido entrenados, evaluados y persistidos. El Experimento A establece el techo de rendimiento (R²=0.9923, RMSE=0.0875). El Experimento B demuestra que sin las variables físicas directas el modelo sigue capturando estructura real (R²=0.8470) pero con una degradación de RMSE del 347%, por encima del umbral de 20% establecido como criterio de éxito.
+El Experimento A obtiene R²=0.9959 y RMSE=0.0644 sobre validación (mejora respecto a test). El Experimento B obtiene R²=0.8745 y RMSE=0.3557 (también mejora). Ninguno muestra overfitting. El siguiente paso es construir el pipeline de producción.
 
 ### Próximos Pasos
 
-1. **Preproducción**: evaluar el Experimento A (modelo de referencia) sobre el dataset de validación (`01_Datos/02_Validacion/validacion.csv`) y guardar métricas en `04_Resultados/02_Preproduccion/`
-2. Desarrollar pipeline de producción y artefactos `.joblib` definitivos en `03_Modelos/`
-3. Desarrollar aplicación Streamlit en `05_Aplicacion/`
+1. **Producción**: construir pipeline reproducible con los artefactos del Experimento A como modelo de referencia; exportar a `03_Modelos/`
+2. **Aplicación**: desarrollar `app.py` en `05_Aplicacion/` con interfaz Streamlit
 
 ---
 
@@ -163,10 +162,19 @@ https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
 
 ## Resultados Principales
 
-- **Exp A (baseline con variables físicas):** RandomForest — R²=0.9923, RMSE=0.0875, MAE=0.0062
-- **Exp B (sin variables físicas):** RandomForest — R²=0.8470, RMSE=0.3910, MAE=0.1933
-- **Degradación Exp A → Exp B:** 347% en RMSE — criterio de éxito no cumplido
-- **Variable dominante en Exp A:** `Usage_kWh` (99.65% de importancia) — proxy casi perfecto de CO2
-- **Variables dominantes en Exp B:** `Load_Type_Light_Load` (37.3%), `Leading_Current_Power_Factor_std_` (36.3%)
+### Entrenamiento (test 30%, random_state=42)
+| Experimento | R² | RMSE | MAE |
+|---|---|---|---|
+| A — con variables físicas | 0.9923 | 0.0875 | 0.0062 |
+| B — sin variables físicas | 0.8470 | 0.3910 | 0.1933 |
+
+### Preproducción (validación, n=10.512, datos no vistos)
+| Experimento | R² | RMSE | MAE | Diagnóstico |
+|---|---|---|---|---|
+| A — con variables físicas | 0.9959 | 0.0644 | 0.0048 | Generaliza correctamente |
+| B — sin variables físicas | 0.8745 | 0.3557 | 0.1732 | Generaliza correctamente |
+
+- **Variable más importante Exp A:** `Usage_kWh` (99.65% de importancia)
+- **Variables más importantes Exp B:** `Load_Type_Light_Load` (37.3%), `Leading_Current_Power_Factor` (36.3%), `Lagging_Current_Power_Factor` (13.0%)
 - **Predicción ARIMA CO2:** MAE = 0.0217
 - **Correlación CO2–Usage_kWh:** r = 0.988

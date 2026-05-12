@@ -16,22 +16,21 @@ Predecir la emisión de CO2 en plantas de acero mediante algoritmos de regresió
 - [x] **5. Entrenamiento** — GridSearchCV sobre 279 configuraciones ejecutado; RandomForest seleccionado (R²=0.992, RMSE=0.089)
 - [x] **6. Series de tiempo** — ARIMA aplicado para CO2 (MAE=0.0217) y Usage_kWh; ejecutado con conclusiones en notebook
 - [x] **7. Análisis de resultados** — JSONs de métricas e importancias exportados a `04_Resultados/01_Analisis/` para ambos experimentos
-- [x] **8. Selección de features** — Feature importances calculadas; Exp A dominado por `Usage_kWh` (99.65%), Exp B por `Load_Type_Light_Load` (37.3%) y factores de potencia
+- [x] **8. Selección de features** — Modelo minimal B seleccionado: 7 features (Load_Type, factores de potencia, NSM cíclico); R²=0.8715 en validación, degradación -0.34% vs modelo completo; `config_modelo_minimal.json` generado
 - [x] **9. Exportar artefactos** — Encoders, scalers y modelos exportados como `.joblib` en `03_Modelos/01_Historial/`
 - [x] **10. Preproducción** — Ambos experimentos evaluados sobre 10.512 registros no vistos; métricas guardadas en `04_Resultados/02_Preproduccion/`; ningún modelo muestra overfitting
-- [ ] **11. Producción** — Pendiente: exportar pipeline completa y artefactos `.joblib` a `03_Modelos/`
+- [x] **11. Producción** — Pipeline de producción (Exp B minimal, 3 inputs del operador) y pipeline de referencia (Exp A) exportados a `03_Modelos/02_Produccion/`; reporte en `04_Resultados/03_Produccion/`
 - [ ] **12. Aplicación** — Pendiente: desarrollar `app.py` en `05_Aplicacion/`
 
 ### Etapa Actual
 
-**Producción — preproducción completada, ambos experimentos validados.**
+**Aplicación — pipeline de producción completado y listo para integrar.**
 
-El Experimento A obtiene R²=0.9959 y RMSE=0.0644 sobre validación (mejora respecto a test). El Experimento B obtiene R²=0.8745 y RMSE=0.3557 (también mejora). Ninguno muestra overfitting. El siguiente paso es construir el pipeline de producción.
+El modelo minimal (Exp B, 7 features, 3 inputs del operador) alcanza R²=0.8715 en validación con una degradación de solo -0.34% respecto al modelo completo de 20 features. Los artefactos de producción están en `03_Modelos/02_Produccion/`. El siguiente paso es la aplicación Streamlit.
 
 ### Próximos Pasos
 
-1. **Producción**: construir pipeline reproducible con los artefactos del Experimento A como modelo de referencia; exportar a `03_Modelos/`
-2. **Aplicación**: desarrollar `app.py` en `05_Aplicacion/` con interfaz Streamlit
+1. **Aplicación**: desarrollar `app.py` en `05_Aplicacion/` con interfaz Streamlit — el operador ingresa Load_Type, Leading_Current_Power_Factor y Lagging_Current_Power_Factor; la app calcula NSM_sin/cos desde el reloj del sistema y retorna la predicción de CO₂ en tCO₂
 
 ---
 
@@ -130,6 +129,23 @@ Preprocesamiento que excluye las variables con correlación física directa y fu
 | Degradación RMSE | — | 347% |
 | Variables | 18 | 20 |
 
+### Modelo minimal de producción
+
+Selección de features sobre el Exp B: se evaluaron 3 subconjuntos por ablación, buscando el mínimo que mantiene R² dentro del 20% del modelo completo (umbral: R² ≥ 0.6996).
+
+| Subconjunto | Features | R² validación | Degradación |
+|---|---|---|---|
+| Top 3 variables | 5 | 0.8097 | -7.4% |
+| Top 3 + NSM cíclico | 7 | 0.8715 | -0.34% |
+| Top 5 variables | 8 | 0.8698 | -0.54% |
+
+**Seleccionado**: Top 3 + NSM cíclico (7 features). NSM_sin y NSM_cos se derivan automáticamente del reloj del sistema — el operador ingresa solo 3 campos. La degradación de -0.34% vs el modelo completo de 20 features justifica la reducción.
+
+**Inputs del operador en la app**:
+- `Load_Type` — tipo de carga programada para el turno (Light / Medium / Maximum)
+- `Leading_Current_Power_Factor` — factor de potencia adelantada, lectura del sensor (0–100)
+- `Lagging_Current_Power_Factor` — factor de potencia retrasada, lectura del sensor (0–100)
+
 ### Conclusión del ciclo de experimentación
 
 El criterio de éxito (≤20% de degradación) no se cumple: **FAIL con 347%**. `Usage_kWh` es un proxy casi perfecto del CO2 (correlación r=0.988, importancia 99.65%) y no puede ser reemplazado por las features temporales disponibles. El Experimento B sí captura estructura real (R²=0.847) — Load_Type y los factores de potencia son señales informativas — pero con precisión insuficiente para uso operacional.
@@ -173,6 +189,7 @@ https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
 |---|---|---|---|---|
 | A — con variables físicas | 0.9959 | 0.0644 | 0.0048 | Generaliza correctamente |
 | B — sin variables físicas | 0.8745 | 0.3557 | 0.1732 | Generaliza correctamente |
+| B minimal — 7 features (producción) | 0.8715 | 0.3598 | 0.1790 | Generaliza correctamente |
 
 - **Variable más importante Exp A:** `Usage_kWh` (99.65% de importancia)
 - **Variables más importantes Exp B:** `Load_Type_Light_Load` (37.3%), `Leading_Current_Power_Factor` (36.3%), `Lagging_Current_Power_Factor` (13.0%)

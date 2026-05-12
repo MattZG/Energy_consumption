@@ -1,0 +1,74 @@
+[
+  {
+    "feature": "Usage_kWh_std_",
+    "importance": 0.9965424277670656
+  },
+  {
+    "feature": "Day_of_week_Tuesday",
+    "importance": 0.001118155603348276
+  },
+  {
+    "feature": "NSM_std_",
+    "importance": 0.0010962626919294469
+  },
+  {
+    "feature": "Lagging_Current_Reactive_Power_kVarh_std_",
+    "importance": 0.0005851882060481182
+  },
+  {
+    "feature": "Lagging_Current_Power_Factor_std_",
+    "importance": 0.0004420638739108099
+  },
+  {
+    "feature": "Leading_Current_Reactive_Power_kVarh_std_",
+    "importance": 0.0001023477922557736
+  },
+  {
+    "feature": "Load_Type_Maximum_Load",
+    "importance": 4.712216383700094e-05
+  },
+  {
+    "feature": "Load_Type_Medium_Load",
+    "importance": 3.345174763322833e-05
+  },
+  {
+    "feature": "Leading_Current_Power_Factor_std_",
+    "importance": 3.2980153971720085e-05
+  },
+  {
+    "feature": "Day_of_week_Friday",
+    "importance": 2.5047743937740083e-17
+  },
+  {
+    "feature": "WeekStatus_Weekday",
+    "importance": 2.3069499704950884e-17
+  },
+  {
+    "feature": "Day_of_week_Thursday",
+    "importance": 1.3559991768092883e-17
+  },
+  {
+    "feature": "WeekStatus_Weekend",
+    "importance": 1.2930996562244722e-17
+  },
+  {
+    "feature": "Load_Type_Light_Load",
+    "importance": 6.4240359507827355e-18
+  },
+  {
+    "feature": "Day_of_week_Monday",
+    "importance": 6.082534095819684e-18
+  },
+  {
+    "feature": "Day_of_week_Wednesday",
+    "importance": 4.0088154834085025e-18
+  },
+  {
+    "feature": "Day_of_week_Sunday",
+    "importance": 2.599724160551472e-18
+  },
+  {
+    "feature": "Day_of_week_Saturday",
+    "importance": 5.737817937500659e-19
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "experimento": "B",
+  "modelo": "RandomForestRegressor",
+  "hiperparametros": {
+    "n_estimators": 200,
+    "max_depth": 15,
+    "min_samples_leaf": 4,
+    "min_samples_split": 2
+  },
+  "metricas_test": {
+    "r2": 0.846997,
+    "rmse": 0.390998,
+    "mae": 0.193321
+  },
+  "n_features": 20,
+  "features": [
+    "Day_of_week_Friday",
+    "Day_of_week_Monday",
+    "Day_of_week_Saturday",
+    "Day_of_week_Sunday",
+    "Day_of_week_Thursday",
+    "Day_of_week_Tuesday",
+    "Day_of_week_Wednesday",
+    "Load_Type_Light_Load",
+    "Load_Type_Maximum_Load",
+    "Load_Type_Medium_Load",
+    "turno_Mañana",
+    "turno_Noche",
+    "turno_Tarde",
+    "es_fin_de_semana",
+    "Leading_Current_Reactive_Power_kVarh_std_",
+    "Lagging_Current_Power_Factor_std_",
+    "Leading_Current_Power_Factor_std_",
+    "NSM_sin_std_",
+    "NSM_cos_std_",
+    "hora_std_"
+  ]
+}

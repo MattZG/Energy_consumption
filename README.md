@@ -12,38 +12,27 @@ Predecir la emisión de CO2 en plantas de acero mediante algoritmos de regresió
 - [x] **2. Calidad de datos** — Análisis de nulidad, duplicados y tipos de datos completado; pickles generados en `01_Datos/03_Trabajo/`
 - [x] **3. EDA** — Análisis estadístico, gráficos exportados a `04_Resultados/01_Analisis/` y análisis de ceros en target completado con conclusiones documentadas
 - [x] **4. Preprocesamiento (Experimento A)** — OHE + StandardScaler aplicados; `df_tablon.pickle` generado (pipeline base sin features temporales)
-- [ ] **4b. Preprocesamiento (Experimento B)** — Pendiente: features temporales (`hora`, `turno`, `NSM` cíclico) extraídas de `date`
+- [x] **4b. Preprocesamiento (Experimento B)** — Features temporales implementadas (`hora`, `turno`, `NSM_sin`/`NSM_cos`, `es_fin_de_semana`); `trabajo_preprocesado_B.pickle` generado
 - [x] **5. Entrenamiento** — GridSearchCV sobre 279 configuraciones ejecutado; RandomForest seleccionado (R²=0.992, RMSE=0.089)
 - [x] **6. Series de tiempo** — ARIMA aplicado para CO2 (MAE=0.0217) y Usage_kWh; ejecutado con conclusiones en notebook
-- [🔄] **7. Análisis de resultados** — Gráficos de EDA exportados; métricas y feature importances calculadas en notebook pero **sin archivos JSON exportados** a `04_Resultados/01_Analisis/`
-- [ ] **8. Selección de features** — Feature importances calculadas en notebook (`Usage_kWh` domina con 99.75%); pendiente exportar configuración a `03_Modelos/`
-- [ ] **9. Preprocesamiento — exportar artefactos** — Encoders y scaler sin guardar como `.joblib` en `03_Modelos/01_Historial/`
+- [x] **7. Análisis de resultados** — JSONs de métricas e importancias exportados a `04_Resultados/01_Analisis/` para ambos experimentos
+- [x] **8. Selección de features** — Feature importances calculadas; Exp A dominado por `Usage_kWh` (99.65%), Exp B por `Load_Type_Light_Load` (37.3%) y factores de potencia
+- [x] **9. Exportar artefactos** — Encoders, scalers y modelos exportados como `.joblib` en `03_Modelos/01_Historial/`
 - [ ] **10. Preproducción** — Pendiente: evaluar modelo con `01_Datos/02_Validacion/validacion.csv` y guardar métricas en `04_Resultados/02_Preproduccion/`
 - [ ] **11. Producción** — Pendiente: exportar pipeline completa y artefactos `.joblib` a `03_Modelos/`
 - [ ] **12. Aplicación** — Pendiente: desarrollar `app.py` en `05_Aplicacion/`
 
 ### Etapa Actual
 
-**Cierre del ciclo de experimentación (Exp. A → Exp. B → exportación de artefactos).**
+**Preproducción — los experimentos A y B están completados y con artefactos exportados.**
 
-El Experimento A está completo a nivel de notebook: GridSearch ejecutado, mejor modelo identificado (RandomForest), métricas documentadas y feature importances calculadas. La brecha crítica es que ningún artefacto ha sido persistido fuera del notebook: no existen `.joblib` de encoder/scaler/modelo ni archivos JSON de métricas. El Experimento B (features temporales) está diseñado pero pendiente de implementar.
+Ambos experimentos han sido entrenados, evaluados y persistidos. El Experimento A establece el techo de rendimiento (R²=0.9923, RMSE=0.0875). El Experimento B demuestra que sin las variables físicas directas el modelo sigue capturando estructura real (R²=0.8470) pero con una degradación de RMSE del 347%, por encima del umbral de 20% establecido como criterio de éxito.
 
 ### Próximos Pasos
 
-1. Implementar Experimento B en `02_Notebooks/01_Desarrollo/04_Transformacion_de_Variable.ipynb`:
-   - Extraer `hora` (0–23) y `turno` (Noche/Mañana/Tarde como dummies) desde columna `date`
-   - Codificar `NSM` como features cíclicas: `NSM_sin = sin(2π·NSM/86400)`, `NSM_cos = cos(2π·NSM/86400)`
-   - Reentrenar con el mismo pipeline de `05_Modelizacion_Supervisada.ipynb`
-   - Comparar métricas Exp. A vs Exp. B (R², RMSE, especialmente en rango CO2 ∈ (0, 0.02])
-2. Exportar artefactos a `03_Modelos/01_Historial/`:
-   - `ohe_experimento_a.joblib` (OneHotEncoder)
-   - `scaler_experimento_a.joblib` (StandardScaler)
-   - `modelo_rf_experimento_a.joblib` (RandomForest mejor configuración)
-3. Exportar métricas y feature importances a `04_Resultados/01_Analisis/`:
-   - `metricas_entrenamiento.json` (R², RMSE, mejores hiperparámetros)
-   - `feature_importances.json`
-4. Evaluar el modelo con `01_Datos/02_Validacion/validacion.csv` y guardar métricas en `04_Resultados/02_Preproduccion/`
-5. Desarrollar pipeline de producción y aplicación Streamlit en `05_Aplicacion/`
+1. **Preproducción**: evaluar el Experimento A (modelo de referencia) sobre el dataset de validación (`01_Datos/02_Validacion/validacion.csv`) y guardar métricas en `04_Resultados/02_Preproduccion/`
+2. Desarrollar pipeline de producción y artefactos `.joblib` definitivos en `03_Modelos/`
+3. Desarrollar aplicación Streamlit en `05_Aplicacion/`
 
 ---
 
@@ -96,24 +85,57 @@ El patrón de fin de semana refleja un modo de stand-by operacional.
 
 ## Diseño de Experimentos
 
+### Justificación del diseño
+
+El dataset contiene dos variables con correlación física directa con CO2: `Usage_kWh` (r=0.988) y `Lagging_Current_Reactive_Power_kVarh` (r=0.887). La planta genera CO2 en función de la energía eléctrica consumida, por lo que incluir estas variables resuelve el problema de predicción de forma casi trivial. El modelo aprende la relación física, no los patrones operacionales. El resultado es preciso pero no accionable: no responde cuándo ni por qué la planta consume más.
+
+El diseño de dos experimentos responde a preguntas distintas:
+
+- **Exp A**: ¿cuál es el techo de rendimiento con información completa? Si el modelo falla incluso aquí, hay un problema fundamental con los datos o el enfoque. Es el baseline de referencia.
+- **Exp B**: ¿puede el modelo identificar cuándo y por qué la planta consume más, usando solo variables que el operador puede conocer antes de que ocurra el consumo? Esta es la pregunta de negocio real.
+
+**Criterio de éxito**: si Exp B degrada el RMSE en ≤20% respecto a Exp A, las features temporales y operacionales son suficientes para predicción accionable. Si supera ese umbral, se necesitan datos adicionales del proceso productivo (temperatura de horno, toneladas producidas, tipo de colada).
+
+---
+
 ### Experimento A — Pipeline base (completado)
 
 Preprocesamiento con las variables disponibles directamente en el dataset.
 
 - **Categóricas:** OneHotEncoding sobre `WeekStatus`, `Day_of_week`, `Load_Type`
-- **Numéricas:** StandardScaler sobre todas las numéricas incluyendo `NSM` como valor lineal
-- **Features temporales:** ninguna extraída de `date`
-- **Dataset resultante:** 35.040 × 20 columnas (`df_tablon.pickle`)
-- **Resultado:** RandomForest R²=0.992, RMSE=0.089
+- **Numéricas:** StandardScaler sobre todas las numéricas incluyendo `Usage_kWh` y `Lagging_Current_Reactive_Power_kVarh`
+- **Dataset resultante:** 35.040 × 18 features (`df_tablon.pickle`)
+- **Modelo:** RandomForestRegressor(n_estimators=50, max_depth=None, min_samples_leaf=4, min_samples_split=2)
+- **Métricas test (30%, random_state=42):** R²=0.9923, RMSE=0.0875, MAE=0.0062
+- **Feature importance top:** `Usage_kWh_std_` = 99.65%
 
-### Experimento B — Con features temporales (pendiente)
+### Experimento B — Sin variables físicas directas (completado)
 
-Preprocesamiento que incorpora la señal operacional identificada en el análisis de ceros.
+Preprocesamiento que excluye las variables con correlación física directa y fuerza al modelo a encontrar señales operacionales accionables.
 
-- **Nuevas features desde `date`:** `hora` (0–23), `turno` (Noche/Mañana/Tarde como dummy)
-- **NSM cíclico:** reemplaza `NSM` lineal por `NSM_sin = sin(2π·NSM/86400)` y `NSM_cos = cos(2π·NSM/86400)`
-- **Rationale:** el turno y la hora son los predictores más fuertes del estado CO2=0 (94.6% nocturno); representarlos explícitamente debe mejorar la calibración del modelo en registros de bajo consumo
-- **Hipótesis:** mejora en RMSE para el rango CO2 ∈ (0, 0.02] sin degradar R² global
+- **Variables excluidas:** `Usage_kWh`, `Lagging_Current_Reactive_Power_kVarh`
+- **Nuevas features desde `date`:** `hora` (0–23), `turno` (Mañana/Tarde/Noche como dummies), `es_fin_de_semana`
+- **NSM cíclico:** `NSM_sin = sin(2π·NSM/86400)` y `NSM_cos = cos(2π·NSM/86400)`
+- **Dataset resultante:** 35.040 × 20 features (`trabajo_preprocesado_B.pickle`)
+- **Modelo:** RandomForestRegressor(n_estimators=200, max_depth=15, min_samples_leaf=4, min_samples_split=2)
+- **Métricas test:** R²=0.8470, RMSE=0.3910, MAE=0.1933
+- **Feature importance top:** `Load_Type_Light_Load`=37.3%, `Leading_Current_Power_Factor_std_`=36.3%, `Lagging_Current_Power_Factor_std_`=13.0%
+
+### Tabla comparativa A vs B
+
+| Métrica | Exp A (con variables físicas) | Exp B (sin variables físicas) |
+|---|---|---|
+| R² | 0.9923 | 0.8470 |
+| RMSE | 0.0875 | 0.3910 |
+| MAE | 0.0062 | 0.1933 |
+| Degradación RMSE | — | 347% |
+| Variables | 18 | 20 |
+
+### Conclusión del ciclo de experimentación
+
+El criterio de éxito (≤20% de degradación) no se cumple: **FAIL con 347%**. `Usage_kWh` es un proxy casi perfecto del CO2 (correlación r=0.988, importancia 99.65%) y no puede ser reemplazado por las features temporales disponibles. El Experimento B sí captura estructura real (R²=0.847) — Load_Type y los factores de potencia son señales informativas — pero con precisión insuficiente para uso operacional.
+
+La siguiente etapa es **preproducción**: evaluar el Exp A (modelo de referencia) sobre el dataset de validación para confirmar que el rendimiento se mantiene fuera de la muestra de entrenamiento. Si se requiere un modelo accionable, se necesitan datos adicionales del proceso productivo.
 
 ---
 
@@ -141,7 +163,10 @@ https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
 
 ## Resultados Principales
 
-- **Modelo supervisado (Exp. A):** RandomForest con R² = 0.992, RMSE = 0.089
-- **Variable más importante:** `Usage_kWh` (99.75% de importancia)
+- **Exp A (baseline con variables físicas):** RandomForest — R²=0.9923, RMSE=0.0875, MAE=0.0062
+- **Exp B (sin variables físicas):** RandomForest — R²=0.8470, RMSE=0.3910, MAE=0.1933
+- **Degradación Exp A → Exp B:** 347% en RMSE — criterio de éxito no cumplido
+- **Variable dominante en Exp A:** `Usage_kWh` (99.65% de importancia) — proxy casi perfecto de CO2
+- **Variables dominantes en Exp B:** `Load_Type_Light_Load` (37.3%), `Leading_Current_Power_Factor_std_` (36.3%)
 - **Predicción ARIMA CO2:** MAE = 0.0217
 - **Correlación CO2–Usage_kWh:** r = 0.988

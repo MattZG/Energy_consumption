@@ -8,7 +8,9 @@
       "Bash(python *)",
       "Bash(py *)",
       "PowerShell(py *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(C:\\\\Users\\\\matia\\\\GitHub\\\\Energy_consumption\\\\venv\\\\Scripts\\\\python.exe *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

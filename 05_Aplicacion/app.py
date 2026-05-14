@@ -143,6 +143,7 @@ if pagina == "Portada":
 
 # ---------- PREDICCION INDIVIDUAL ----------
 elif pagina == "Individual":
+    st.button("← Volver a la Portada", on_click=navegar_a, args=("Portada",))
     st.title("Prediccion Individual de CO2")
     st.markdown("Ingresa los parametros operacionales para obtener la prediccion de emisiones del proximo intervalo.")
 
@@ -254,6 +255,7 @@ elif pagina == "Individual":
 
 # ---------- PREDICCION POR DATASET ----------
 elif pagina == "Dataset":
+    st.button("← Volver a la Portada", on_click=navegar_a, args=("Portada",))
     st.title("Prediccion por Dataset")
     st.markdown(
         """
@@ -295,6 +297,7 @@ elif pagina == "Dataset":
 
                 df_resultado = df_raw.copy()
                 df_resultado["CO2_predicho_tCO2"] = predicciones.round(6)
+                df_resultado["CO2_predicho_tCO2"] = df_resultado["CO2_predicho_tCO2"].clip(lower=0).round(6)
 
                 st.subheader("Predicciones generadas")
                 st.dataframe(df_resultado, width='stretch')

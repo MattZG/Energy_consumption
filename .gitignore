@@ -7,10 +7,11 @@ env/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Datos grandes — fuente: UCI Machine Learning Repository
+# Datos grandes - fuente: UCI Machine Learning Repository
 01_Datos/01_Originales/
-01_Datos/03_Trabajo/*.csv
 01_Datos/02_Validacion/
+01_Datos/03_Trabajo/*
+!01_Datos/03_Trabajo/.gitkeep
 01_Datos/04_Prueba/
 
 # Modelos
@@ -29,3 +30,9 @@ Thumbs.db
 04_Resultados/01_Analisis/*.png
 04_Resultados/02_Preproduccion/*.png
 04_Resultados/03_Produccion/*.png
+
+# Scripts intermedios
+scripts/
+
+# Claude Code local
+.claude/settings.local.json

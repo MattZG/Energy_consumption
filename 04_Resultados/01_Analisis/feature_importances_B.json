@@ -1,0 +1,82 @@
+[
+  {
+    "feature": "Load_Type_Light_Load",
+    "importance": 0.37330550448670086
+  },
+  {
+    "feature": "Leading_Current_Power_Factor_std_",
+    "importance": 0.3630905989667525
+  },
+  {
+    "feature": "Lagging_Current_Power_Factor_std_",
+    "importance": 0.1299946733120254
+  },
+  {
+    "feature": "NSM_cos_std_",
+    "importance": 0.06231666332723495
+  },
+  {
+    "feature": "Leading_Current_Reactive_Power_kVarh_std_",
+    "importance": 0.042953936268462056
+  },
+  {
+    "feature": "NSM_sin_std_",
+    "importance": 0.00860782238617336
+  },
+  {
+    "feature": "hora_std_",
+    "importance": 0.003023653335971778
+  },
+  {
+    "feature": "es_fin_de_semana",
+    "importance": 0.003013415136154031
+  },
+  {
+    "feature": "Day_of_week_Tuesday",
+    "importance": 0.002062919597769802
+  },
+  {
+    "feature": "Day_of_week_Thursday",
+    "importance": 0.001737495719517901
+  },
+  {
+    "feature": "Day_of_week_Friday",
+    "importance": 0.0017207467744405327
+  },
+  {
+    "feature": "Day_of_week_Monday",
+    "importance": 0.0016605598715747375
+  },
+  {
+    "feature": "turno_Noche",
+    "importance": 0.001291211918939153
+  },
+  {
+    "feature": "Load_Type_Maximum_Load",
+    "importance": 0.0012806229286088672
+  },
+  {
+    "feature": "Day_of_week_Saturday",
+    "importance": 0.0012635319022777233
+  },
+  {
+    "feature": "Day_of_week_Wednesday",
+    "importance": 0.001109794379285602
+  },
+  {
+    "feature": "Load_Type_Medium_Load",
+    "importance": 0.0008067017675327098
+  },
+  {
+    "feature": "Day_of_week_Sunday",
+    "importance": 0.0005777026573699342
+  },
+  {
+    "feature": "turno_Mañana",
+    "importance": 0.00010273423252695003
+  },
+  {
+    "feature": "turno_Tarde",
+    "importance": 7.971103068114493e-05
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "experimento_A": {
+    "r2": 0.992343,
+    "rmse": 0.08747,
+    "mae": 0.00616,
+    "n_features": 18
+  },
+  "experimento_B": {
+    "r2": 0.846997,
+    "rmse": 0.390998,
+    "mae": 0.193321,
+    "n_features": 20
+  },
+  "degradacion_rmse_pct": 347.01,
+  "criterio_exito": "FAIL",
+  "interpretacion": "El Experimento B confirma que Usage_kWh es un predictor casi exclusivo del CO2 (99.6% de importancia en Exp A): al excluirlo junto con Lagging_Current_Reactive_Power_kVarh, el RMSE se degrada un 347%, indicando que las features temporales y de eficiencia electrica disponibles no capturan suficientemente la variabilidad del proceso. Desde la perspectiva de negocio, esto sugiere que predecir CO2 de forma accionable requiere incorporar variables adicionales del proceso (temperatura, produccion, tipo de acero) que reflejen la causa raiz de las emisiones sin ser una consecuencia directa del consumo."
+}

@@ -1,0 +1,40 @@
+{
+  "modelo_produccion": "B",
+  "justificacion": "El Experimento B es el modelo de producción porque sus variables de entrada (hora del día, turno, día de semana, factores de potencia, potencia reactiva leading) son conocidas por el operador ANTES de que ocurra el consumo eléctrico. Esto permite anticipar emisiones de CO2 en escenarios de planificación. El Experimento A tiene mayor precisión (R2=0.9959) pero requiere Usage_kWh como input, variable que solo se conoce DESPUÉS de que ocurre el consumo — uso tautológico.",
+  "modelo_referencia": "A",
+  "metricas_validacion_B": {
+    "r2": 0.874477,
+    "rmse_std": 0.355691,
+    "mae_std": 0.17321
+  },
+  "metricas_validacion_A": {
+    "r2": 0.995889,
+    "rmse_std": 0.06437,
+    "mae_std": 0.004801
+  },
+  "metricas_validacion_B_escala_original": {
+    "r2": 0.874477,
+    "rmse_tco2": 0.005745,
+    "mae_tco2": 0.002797
+  },
+  "features_produccion": [
+    "Day_of_week",
+    "Load_Type",
+    "turno",
+    "es_fin_de_semana",
+    "Leading_Current_Reactive_Power_kVarh",
+    "Lagging_Current_Power_Factor",
+    "Leading_Current_Power_Factor",
+    "NSM_sin",
+    "NSM_cos",
+    "hora"
+  ],
+  "artefactos": {
+    "pipeline_produccion": "03_Modelos/02_Produccion/pipeline_produccion_B_v1.joblib",
+    "pipeline_referencia": "03_Modelos/02_Produccion/pipeline_referencia_A_v1.joblib"
+  },
+  "limitaciones": [
+    "El modelo B alcanza R2=0.875 sin variables de proceso productivo (temperatura, toneladas). Para mayor precisión se requieren datos adicionales de la línea de producción.",
+    "El dataset cubre solo 2018. La validez en otros períodos depende de la estabilidad de los patrones operacionales."
+  ]
+}

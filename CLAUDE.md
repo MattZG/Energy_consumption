@@ -17,3 +17,10 @@ mediante regresión supervisada y series de tiempo.
 - Datos de entrenamiento en `01_Datos/03_Trabajo/`
 - Artefactos en `03_Modelos/01_Historial/`
 - Dataset de validación en `01_Datos/02_Validacion/`
+
+## Convención de invocación de agentes
+
+Siempre cargar la Skill del experto antes de ejecutar cualquier sub-agente:
+
+@nombre-agente lee primero .claude/agents/Experto_Energetico.md 
+para entender el contexto del dominio y luego [tarea]

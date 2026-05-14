@@ -10,7 +10,17 @@
       "PowerShell(py *)",
       "Bash(git add *)",
       "Bash(C:\\\\Users\\\\matia\\\\GitHub\\\\Energy_consumption\\\\venv\\\\Scripts\\\\python.exe *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(where python *)",
+      "Bash(\"C:\\\\Users\\\\matia\\\\GitHub\\\\Energy_consumption\\\\.venv\\\\Scripts\\\\python.exe\" -c \"import pandas as pd; df = pd.read_csv\\('01_Datos/02_Validacion/validacion.csv'\\); print\\(df.shape\\); print\\(df.columns.tolist\\(\\)\\); print\\(df.head\\(2\\).to_string\\(\\)\\)\")",
+      "Bash(C:\\\\Users\\\\matia\\\\anaconda3\\\\python.exe *)",
+      "Bash(\"C:\\\\Users\\\\matia\\\\anaconda3\\\\python.exe\" 02_Notebooks/preproduccion_A.py)",
+      "Bash(\"C:\\\\Users\\\\matia\\\\anaconda3\\\\python.exe\" 02_Notebooks/preproduccion_B.py)",
+      "Bash(\"C:\\\\Users\\\\matia\\\\anaconda3\\\\python.exe\" 02_Notebooks/preproduccion_reporte.py)",
+      "PowerShell(python \"C:\\\\Users\\\\matia\\\\GitHub\\\\Energy_consumption\\\\_fix_notebook.py\")",
+      "Bash(.venv\\\\Scripts\\\\python.exe ablacion_B_minimal.py)",
+      "Bash(ls .venv/Scripts/)",
+      "Bash(ls venv/Scripts/)"
     ]
   }
 }

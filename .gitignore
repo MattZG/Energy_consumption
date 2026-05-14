@@ -24,3 +24,8 @@ __pycache__/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Resultados
+04_Resultados/01_Analisis/*.png
+04_Resultados/02_Preproduccion/*.png
+04_Resultados/03_Produccion/*.png

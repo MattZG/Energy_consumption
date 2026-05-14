@@ -1,36 +1,42 @@
-# Proyecto: Consumo de Energía y Huella de Carbono
+# Prediccion de Emisiones CO2 — Planta de Acero
 
-## Objetivo
+Prediccion de emisiones de CO2 y consumo energetico en una planta de acero coreana mediante regresion supervisada y series de tiempo. El objetivo de negocio es permitir que el operador **anticipe las emisiones antes de que ocurra el consumo**, habilitando decisiones operacionales sobre tipo de carga y eficiencia electrica en la planificacion del turno.
 
-Predecir la emisión de CO2 en plantas de acero mediante algoritmos de regresión supervisada y modelizar series de tiempo para entender patrones de consumo energético.
+**Fuente de datos:** Steel Industry Energy Consumption Dataset — UCI Machine Learning Repository (ID 851), DAEWOO Steel Co. Ltd, Gwangyang, Corea del Sur. Periodo: 1 enero 2018 – 31 diciembre 2018, granularidad de 15 minutos, 35.040 registros.
 
-## Estado del Proyecto (Revisión: 2026-05-11)
+---
+
+## Estado del Proyecto (Revision: 2026-05-14)
+
+Todas las etapas completadas. Aplicacion Streamlit operativa.
 
 ### Checklist de Etapas
 
-- [x] **1. Setup** — Estructura de carpetas, dataset original, trabajo y validación creados
-- [x] **2. Calidad de datos** — Análisis de nulidad, duplicados y tipos de datos completado; pickles generados en `01_Datos/03_Trabajo/`
-- [x] **3. EDA** — Análisis estadístico, gráficos exportados a `04_Resultados/01_Analisis/` y análisis de ceros en target completado con conclusiones documentadas
-- [x] **4. Preprocesamiento (Experimento A)** — OHE + StandardScaler aplicados; `df_tablon.pickle` generado (pipeline base sin features temporales)
+- [x] **1. Setup** — Estructura de carpetas, dataset original, trabajo y validacion creados
+- [x] **2. Calidad de datos** — Analisis de nulidad, duplicados y tipos de datos completado; pickles generados en `01_Datos/03_Trabajo/`
+- [x] **3. EDA** — Analisis estadistico, graficos exportados a `04_Resultados/01_Analisis/` y analisis de ceros en target completado con conclusiones documentadas
+- [x] **4. Preprocesamiento (Experimento A)** — OHE + StandardScaler aplicados; `df_tablon.pickle` generado (pipeline base con variables fisicas)
 - [x] **4b. Preprocesamiento (Experimento B)** — Features temporales implementadas (`hora`, `turno`, `NSM_sin`/`NSM_cos`, `es_fin_de_semana`); `trabajo_preprocesado_B.pickle` generado
-- [x] **5. Entrenamiento** — GridSearchCV sobre 279 configuraciones ejecutado; RandomForest seleccionado (R²=0.992, RMSE=0.089)
+- [x] **5. Entrenamiento** — GridSearchCV sobre 279 configuraciones ejecutado; RandomForest seleccionado (R²=0.9923, RMSE=0.0875)
 - [x] **6. Series de tiempo** — ARIMA aplicado para CO2 (MAE=0.0217) y Usage_kWh; ejecutado con conclusiones en notebook
-- [x] **7. Análisis de resultados** — JSONs de métricas e importancias exportados a `04_Resultados/01_Analisis/` para ambos experimentos
-- [x] **8. Selección de features** — Modelo minimal B seleccionado: 7 features (Load_Type, factores de potencia, NSM cíclico); R²=0.8715 en validación, degradación -0.34% vs modelo completo; `config_modelo_minimal.json` generado
+- [x] **7. Analisis de resultados** — JSONs de metricas e importancias exportados a `04_Resultados/01_Analisis/` para ambos experimentos
+- [x] **8. Seleccion de features** — Modelo minimal B seleccionado: 7 features (Load_Type, factores de potencia, NSM ciclico); R²=0.8715 en validacion, degradacion -0.34% vs modelo completo de 20 features; `config_modelo_minimal.json` generado
 - [x] **9. Exportar artefactos** — Encoders, scalers y modelos exportados como `.joblib` en `03_Modelos/01_Historial/`
-- [x] **10. Preproducción** — Ambos experimentos evaluados sobre 10.512 registros no vistos; métricas guardadas en `04_Resultados/02_Preproduccion/`; ningún modelo muestra overfitting
-- [x] **11. Producción** — Pipeline de producción (Exp B minimal, 3 inputs del operador) y pipeline de referencia (Exp A) exportados a `03_Modelos/02_Produccion/`; reporte en `04_Resultados/03_Produccion/`
-- [ ] **12. Aplicación** — Pendiente: desarrollar `app.py` en `05_Aplicacion/`
+- [x] **10. Preproduccion** — Ambos experimentos evaluados sobre 10.512 registros no vistos; metricas guardadas en `04_Resultados/02_Preproduccion/`; ningun modelo muestra overfitting
+- [x] **11. Produccion** — Pipeline de produccion (Exp B minimal, 3 inputs del operador) y pipeline de referencia (Exp A) exportados a `03_Modelos/02_Produccion/`; reporte en `04_Resultados/03_Produccion/`
+- [x] **12. Aplicacion** — App Streamlit operativa en `05_Aplicacion/app.py` con prediccion individual y prediccion por dataset (carga de CSV en lote)
 
-### Etapa Actual
+---
 
-**Aplicación — pipeline de producción completado y listo para integrar.**
+## Dataset y Split
 
-El modelo minimal (Exp B, 7 features, 3 inputs del operador) alcanza R²=0.8715 en validación con una degradación de solo -0.34% respecto al modelo completo de 20 features. Los artefactos de producción están en `03_Modelos/02_Produccion/`. El siguiente paso es la aplicación Streamlit.
+| Conjunto | Registros | Ruta |
+|---|---|---|
+| Original | 35.040 | `01_Datos/01_Originales/Steel_industry_data.csv` |
+| Trabajo (entrenamiento) | 24.528 (70%) | `01_Datos/03_Trabajo/trabajo.csv` |
+| Validacion (evaluacion final, no vista) | 10.512 (30%) | `01_Datos/02_Validacion/validacion.csv` |
 
-### Próximos Pasos
-
-1. **Aplicación**: desarrollar `app.py` en `05_Aplicacion/` con interfaz Streamlit — el operador ingresa Load_Type, Leading_Current_Power_Factor y Lagging_Current_Power_Factor; la app calcula NSM_sin/cos desde el reloj del sistema y retorna la predicción de CO₂ en tCO₂
+El dataset de validacion no se uso en ningun momento del ciclo de entrenamiento ni seleccion de hiperparametros. Se reservo exclusivamente para la evaluacion de preproduccion.
 
 ---
 
@@ -38,36 +44,34 @@ El modelo minimal (Exp B, 7 features, 3 inputs del operador) alcanza R²=0.8715 
 
 ### Variables clave
 
-| Variable | Correlación con CO2 | Significancia |
+| Variable | Correlacion con CO2 | Significancia |
 |---|---|---|
 | `Usage_kWh` | r = 0.988 | p < 1e-300 |
 | `Lagging_Current_Reactive_Power_kVarh` | r = 0.887 | p < 1e-300 |
 
-### Análisis de ceros en CO2_tCO2
+Estas dos variables tienen correlacion fisica directa con CO2: la planta genera emisiones en funcion de la energia consumida. Incluirlas resuelve el problema de prediccion de forma casi trivial pero no accionable — el modelo aprende la relacion fisica, no los patrones operacionales.
 
-El 59.9% de los registros tienen `CO2_tCO2 = 0`. El análisis muestra que corresponden a **estados operacionales reales** de la planta, no a errores de medición.
+### Analisis de ceros en CO2_tCO2
 
-**Distribución de ceros por turno horario**
+El 59.9% de los registros tienen `CO2_tCO2 = 0`. El analisis confirma que corresponden a **estados operacionales reales** de la planta (no errores de medicion).
+
+**Distribucion de ceros por turno horario**
 
 | Turno | Rango | % Registros con CO2 = 0 |
 |---|---|---|
 | Noche | 22h – 6h | 94.6% |
-| Mañana | 6h – 14h | 49.5% |
+| Manana | 6h – 14h | 49.5% |
 | Tarde | 14h – 22h | 35.6% |
 
-El turno nocturno corresponde a planta prácticamente detenida; el turno de tarde es el más productivo.
-
-**Distribución de ceros por día de la semana**
+**Distribucion de ceros por dia de la semana**
 
 | Grupo | % Registros con CO2 = 0 |
 |---|---|
 | Lunes – Viernes | ~51% |
-| Sábado | 73% |
+| Sabado | 73% |
 | Domingo | 89% |
 
-El patrón de fin de semana refleja un modo de stand-by operacional.
-
-**Distribución de ceros por Load_Type**
+**Distribucion de ceros por Load_Type**
 
 | Load_Type | % Registros con CO2 = 0 |
 |---|---|
@@ -75,123 +79,231 @@ El patrón de fin de semana refleja un modo de stand-by operacional.
 | `Medium_Load` | 41.0% |
 | `Maximum_Load` | 9.2% |
 
-`Light_Load` actúa como proxy de planta inactiva; `Maximum_Load` casi siempre genera emisiones.
-
-**Validación estadística:** Test chi-cuadrado turno vs CO2=0 → chi²=9.266, p < 1e-300. El patrón es completamente estructurado y no aleatorio.
+Test chi-cuadrado turno vs CO2=0: chi²=9.266, p < 1e-300. El patron es completamente estructurado y no aleatorio. `Light_Load` actua como proxy de planta inactiva; `Maximum_Load` casi siempre genera emisiones.
 
 ---
 
-## Diseño de Experimentos
+## Diseno de Experimentos
 
-### Justificación del diseño
+### Justificacion
 
-El dataset contiene dos variables con correlación física directa con CO2: `Usage_kWh` (r=0.988) y `Lagging_Current_Reactive_Power_kVarh` (r=0.887). La planta genera CO2 en función de la energía eléctrica consumida, por lo que incluir estas variables resuelve el problema de predicción de forma casi trivial. El modelo aprende la relación física, no los patrones operacionales. El resultado es preciso pero no accionable: no responde cuándo ni por qué la planta consume más.
+El diseno de dos experimentos responde a preguntas distintas:
 
-El diseño de dos experimentos responde a preguntas distintas:
+- **Exp A**: ?cual es el techo de rendimiento con informacion completa? Es el baseline de referencia. Si el modelo falla aqui, hay un problema fundamental.
+- **Exp B**: ?puede el modelo identificar cuando y por que la planta consume mas, usando solo variables que el operador puede conocer **antes** de que ocurra el consumo? Esta es la pregunta de negocio real.
 
-- **Exp A**: ¿cuál es el techo de rendimiento con información completa? Si el modelo falla incluso aquí, hay un problema fundamental con los datos o el enfoque. Es el baseline de referencia.
-- **Exp B**: ¿puede el modelo identificar cuándo y por qué la planta consume más, usando solo variables que el operador puede conocer antes de que ocurra el consumo? Esta es la pregunta de negocio real.
+**Criterio de exito**: si Exp B degrada el RMSE en ≤20% respecto a Exp A, las features temporales y operacionales son suficientes para prediccion accionable.
 
-**Criterio de éxito**: si Exp B degrada el RMSE en ≤20% respecto a Exp A, las features temporales y operacionales son suficientes para predicción accionable. Si supera ese umbral, se necesitan datos adicionales del proceso productivo (temperatura de horno, toneladas producidas, tipo de colada).
+### Experimento A — Pipeline base (modelo de referencia)
 
----
+Incluye las variables con correlacion fisica directa con CO2.
 
-### Experimento A — Pipeline base (completado)
-
-Preprocesamiento con las variables disponibles directamente en el dataset.
-
-- **Categóricas:** OneHotEncoding sobre `WeekStatus`, `Day_of_week`, `Load_Type`
-- **Numéricas:** StandardScaler sobre todas las numéricas incluyendo `Usage_kWh` y `Lagging_Current_Reactive_Power_kVarh`
-- **Dataset resultante:** 35.040 × 18 features (`df_tablon.pickle`)
+- **Variables incluidas:** todas las del dataset, incluyendo `Usage_kWh` y `Lagging_Current_Reactive_Power_kVarh`
+- **Preprocesamiento:** OHE sobre `WeekStatus`, `Day_of_week`, `Load_Type`; StandardScaler sobre numericas
+- **Dataset resultante:** 35.040 × 18 features (`df_tablon.pickle` / `trabajo_preprocesado_A.pickle`)
 - **Modelo:** RandomForestRegressor(n_estimators=50, max_depth=None, min_samples_leaf=4, min_samples_split=2)
-- **Métricas test (30%, random_state=42):** R²=0.9923, RMSE=0.0875, MAE=0.0062
-- **Feature importance top:** `Usage_kWh_std_` = 99.65%
+- **Artefacto:** `03_Modelos/02_Produccion/pipeline_referencia_A_v1.joblib`
 
-### Experimento B — Sin variables físicas directas (completado)
+### Experimento B — Sin variables fisicas directas (modelo de produccion)
 
-Preprocesamiento que excluye las variables con correlación física directa y fuerza al modelo a encontrar señales operacionales accionables.
+Excluye las variables con correlacion fisica directa y fuerza al modelo a encontrar senales operacionales accionables.
 
 - **Variables excluidas:** `Usage_kWh`, `Lagging_Current_Reactive_Power_kVarh`
-- **Nuevas features desde `date`:** `hora` (0–23), `turno` (Mañana/Tarde/Noche como dummies), `es_fin_de_semana`
-- **NSM cíclico:** `NSM_sin = sin(2π·NSM/86400)` y `NSM_cos = cos(2π·NSM/86400)`
+- **Nuevas features desde `date`:** `hora` (0–23), `turno` (dummies Manana/Tarde/Noche), `es_fin_de_semana`, `NSM_sin = sin(2π·NSM/86400)`, `NSM_cos = cos(2π·NSM/86400)`
 - **Dataset resultante:** 35.040 × 20 features (`trabajo_preprocesado_B.pickle`)
 - **Modelo:** RandomForestRegressor(n_estimators=200, max_depth=15, min_samples_leaf=4, min_samples_split=2)
-- **Métricas test:** R²=0.8470, RMSE=0.3910, MAE=0.1933
-- **Feature importance top:** `Load_Type_Light_Load`=37.3%, `Leading_Current_Power_Factor_std_`=36.3%, `Lagging_Current_Power_Factor_std_`=13.0%
+- **Artefacto:** `03_Modelos/02_Produccion/pipeline_produccion_B_v1.joblib`
+
+---
+
+## Resultados
+
+### Entrenamiento (test interno 30%, random_state=42)
+
+| Experimento | R² | RMSE | MAE | Feature mas importante |
+|---|---|---|---|---|
+| A — con variables fisicas | 0.9923 | 0.0875 | 0.0062 | `Usage_kWh` (99.65%) |
+| B — sin variables fisicas | 0.8470 | 0.3910 | 0.1933 | `Load_Type_Light_Load` (37.3%) |
+
+### Preproduccion (validacion, n=10.512 registros no vistos)
+
+| Experimento | R² | RMSE | MAE | Diagnostico |
+|---|---|---|---|---|
+| A — con variables fisicas | 0.9959 | 0.0644 | 0.0048 | Generaliza correctamente |
+| B — sin variables fisicas | 0.8745 | 0.3557 | 0.1732 | Generaliza correctamente |
+| B minimal — 7 features (produccion) | 0.8715 | 0.3598 | 0.1790 | Generaliza correctamente |
+
+Ninguno de los tres modelos muestra overfitting. El Exp B mejora en validacion respecto al test de entrenamiento (degradacion RMSE: -9.03%).
+
+### Seleccion de features — Modelo minimal de produccion
+
+Ablacion sobre 3 subconjuntos del Exp B buscando el minimo que mantiene R² dentro del 20% del modelo completo (umbral: R² ≥ 0.6996).
+
+| Subconjunto | Features en modelo | Inputs del operador | R² validacion | Degradacion vs B completo |
+|---|---|---|---|---|
+| Top 3 variables | 5 | 3 | 0.8097 | -7.41% |
+| Top 3 + NSM ciclico | 7 | 3 | 0.8715 | -0.34% |
+| Top 5 variables | 8 | 3 | 0.8698 | -0.54% |
+
+**Seleccionado**: Top 3 + NSM ciclico (7 features). NSM_sin y NSM_cos se derivan automaticamente del reloj del sistema — el operador ingresa solo 3 campos. La degradacion de -0.34% vs el modelo completo de 20 features justifica la reduccion de complejidad.
 
 ### Tabla comparativa A vs B
 
-| Métrica | Exp A (con variables físicas) | Exp B (sin variables físicas) |
+| Metrica | Exp A (con variables fisicas) | Exp B (sin variables fisicas) |
 |---|---|---|
-| R² | 0.9923 | 0.8470 |
-| RMSE | 0.0875 | 0.3910 |
-| MAE | 0.0062 | 0.1933 |
-| Degradación RMSE | — | 347% |
-| Variables | 18 | 20 |
+| R² validacion | 0.9959 | 0.8745 |
+| RMSE validacion | 0.0644 | 0.3557 |
+| MAE validacion | 0.0048 | 0.1732 |
+| Degradacion RMSE vs A | — | 452% |
+| Accionable antes del consumo | No | Si |
 
-### Modelo minimal de producción
-
-Selección de features sobre el Exp B: se evaluaron 3 subconjuntos por ablación, buscando el mínimo que mantiene R² dentro del 20% del modelo completo (umbral: R² ≥ 0.6996).
-
-| Subconjunto | Features | R² validación | Degradación |
-|---|---|---|---|
-| Top 3 variables | 5 | 0.8097 | -7.4% |
-| Top 3 + NSM cíclico | 7 | 0.8715 | -0.34% |
-| Top 5 variables | 8 | 0.8698 | -0.54% |
-
-**Seleccionado**: Top 3 + NSM cíclico (7 features). NSM_sin y NSM_cos se derivan automáticamente del reloj del sistema — el operador ingresa solo 3 campos. La degradación de -0.34% vs el modelo completo de 20 features justifica la reducción.
-
-**Inputs del operador en la app**:
-- `Load_Type` — tipo de carga programada para el turno (Light / Medium / Maximum)
-- `Leading_Current_Power_Factor` — factor de potencia adelantada, lectura del sensor (0–100)
-- `Lagging_Current_Power_Factor` — factor de potencia retrasada, lectura del sensor (0–100)
-
-### Conclusión del ciclo de experimentación
-
-El criterio de éxito (≤20% de degradación) no se cumple: **FAIL con 347%**. `Usage_kWh` es un proxy casi perfecto del CO2 (correlación r=0.988, importancia 99.65%) y no puede ser reemplazado por las features temporales disponibles. El Experimento B sí captura estructura real (R²=0.847) — Load_Type y los factores de potencia son señales informativas — pero con precisión insuficiente para uso operacional.
-
-La siguiente etapa es **preproducción**: evaluar el Exp A (modelo de referencia) sobre el dataset de validación para confirmar que el rendimiento se mantiene fuera de la muestra de entrenamiento. Si se requiere un modelo accionable, se necesitan datos adicionales del proceso productivo.
+El criterio de exito (≤20% degradacion RMSE) no se cumple. `Usage_kWh` es un proxy casi perfecto del CO2 (r=0.988, importancia 99.65%) y no puede ser reemplazado por las features temporales disponibles. El Exp B si captura estructura real (R²=0.875) — Load_Type y los factores de potencia son senales informativas — y es el unico modelo accionable para planificacion operacional.
 
 ---
 
-## Fuente de datos
+## Aplicacion Streamlit
 
-Steel Industry Energy Consumption Dataset
-UCI Machine Learning Repository — ID 851
-DAEWOO Steel Co. Ltd, Gwangyang, Corea del Sur
-Período: 1 enero 2018 – 31 diciembre 2018, granularidad 15 minutos
-35.040 registros
-https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
+Archivo: `05_Aplicacion/app.py`
+
+La aplicacion permite anticipar emisiones de CO2 antes de que ocurra el consumo energetico.
+
+### Como ejecutar
+
+```bash
+cd C:\Users\matia\GitHub\Energy_consumption
+streamlit run 05_Aplicacion/app.py
+```
+
+### Vistas disponibles
+
+| Vista | Descripcion |
+|---|---|
+| Portada | Descripcion del modelo, metricas de rendimiento y tabla de variables de entrada |
+| Prediccion Individual | Formulario con 3 campos del operador; la hora del sistema se captura automaticamente |
+| Prediccion por Dataset | Carga de CSV en lote; genera predicciones masivas y permite descargar el reporte |
+
+### Formato de entrada para prediccion individual
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `Tipo de carga` | Categorico | Regimen del turno: Carga Ligera / Carga Media / Carga Maxima |
+| `Factor de Potencia Adelantado` | Numerico [0–100] | Eficiencia del suministro de energia (lectura de sensor) |
+| `Factor de Potencia Retrasado` | Numerico [0–100] | Eficiencia del consumo de energia (lectura de sensor) |
+| Hora del sistema | Automatico | NSM_sin y NSM_cos se calculan internamente; el operador no los ingresa |
+
+### Formato de entrada para prediccion por dataset (CSV)
+
+El archivo CSV debe contener exactamente estas tres columnas:
+
+```
+Load_Type, Leading_Current_Power_Factor, Lagging_Current_Power_Factor
+```
+
+Los valores de `Load_Type` deben ser: `Light_Load`, `Medium_Load` o `Maximum_Load`.
+
+### Interpretacion de la salida
+
+La aplicacion retorna `CO2_predicho_tCO2` (toneladas de CO2 por intervalo de 15 minutos). Los valores negativos se clipean a 0 automaticamente. La prediccion individual incluye comparativa grafica contra el promedio historico por tipo de carga.
+
+---
+
+## Limitaciones del Modelo
+
+1. **Precision del modelo de produccion (Exp B):** R²=0.8715 sin variables de proceso productivo (temperatura de horno, toneladas producidas, tipo de colada). Para mayor precision se requieren datos adicionales de la linea de produccion.
+2. **Cobertura temporal:** el dataset cubre solo el ano 2018. La validez en otros periodos depende de la estabilidad de los patrones operacionales de la planta.
+3. **Escala de tiempo:** el modelo predice emisiones por intervalo de 15 minutos. No es aplicable directamente a horizontes diarios o semanales sin agregacion.
+4. **Modelo de referencia no accionable:** el Exp A (R²=0.9959) requiere `Usage_kWh` como input, variable que solo se conoce despues de que ocurre el consumo. Su uso es tautologico para prediccion anticipada.
+5. **Dominio del dataset:** los patrones fueron aprendidos de una planta de acero coreana especifica. La transferencia a otras plantas requiere reentrenamiento.
+
+---
+
+## Estructura de Carpetas
+
+```
+Energy_consumption/
+├── 01_Datos/
+│   ├── 01_Originales/
+│   │   └── Steel_industry_data.csv          # Dataset UCI original (35.040 registros)
+│   ├── 02_Validacion/
+│   │   └── validacion.csv                   # 10.512 registros no vistos (30%)
+│   ├── 03_Trabajo/
+│   │   ├── trabajo.csv                      # 24.528 registros de entrenamiento (70%)
+│   │   ├── trabajo_preprocesado_A.pickle    # Dataset Exp A (18 features)
+│   │   ├── trabajo_preprocesado_B.pickle    # Dataset Exp B (20 features)
+│   │   ├── df_tablon.pickle                 # Dataset tablon Exp A (legacy)
+│   │   ├── trabajo_resultado_calidad.pickle
+│   │   ├── cat_resultado_calidad.pickle
+│   │   └── num_resultado_calidad.pickle
+│   └── 04_Prueba/
+│       ├── dataset_prueba.csv               # Dataset de ejemplo para la app
+│       └── predicciones_co2.csv             # Ultimo reporte de predicciones generado
+│
+├── 02_Notebooks/
+│   ├── 01_Desarrollo/
+│   │   ├── 01_Set Up.ipynb
+│   │   ├── 02_Calidad_datos.ipynb
+│   │   ├── 03_EDA.ipynb
+│   │   ├── 04_Transformacion_de_Variable.ipynb   # Preprocesamiento A y B
+│   │   ├── 05_Modelizacion_Supervisada.ipynb     # Entrenamiento + seleccion de features
+│   │   └── 06_Series_de_tiempo.ipynb
+│   └── 02_Produccion/
+│       ├── 01_Preproduccion.ipynb               # Evaluacion sobre validacion (1 unica vez)
+│       └── 02_Produccion.ipynb                  # Exportacion de artefactos de produccion
+│
+├── 03_Modelos/
+│   ├── 01_Historial/
+│   │   ├── pipeline_encoder_A.joblib
+│   │   ├── pipeline_scaler_A.joblib
+│   │   ├── rfc_CO2_A_v1_pipeline.joblib
+│   │   ├── pipeline_encoder_B.joblib
+│   │   ├── pipeline_scaler_B.joblib
+│   │   └── rfc_CO2_B_v1_pipeline.joblib
+│   └── 02_Produccion/
+│       ├── pipeline_produccion_B_min_v1.joblib  # Modelo de produccion (Exp B minimal, 7 features)
+│       ├── pipeline_produccion_B_v1.joblib      # Modelo Exp B completo (10 features)
+│       └── pipeline_referencia_A_v1.joblib      # Modelo de referencia Exp A (18 features)
+│
+├── 04_Resultados/
+│   ├── 01_Analisis/
+│   │   ├── benchmarking_A.json
+│   │   ├── benchmarking_B.json
+│   │   ├── feature_importances_A.json
+│   │   ├── feature_importances_B.json
+│   │   ├── comparacion_AB.json
+│   │   └── *.png                                # Graficos del EDA
+│   ├── 02_Preproduccion/
+│   │   ├── metricas_validacion_A.json
+│   │   ├── metricas_validacion_B.json
+│   │   └── reporte_preproduccion.json
+│   └── 03_Produccion/
+│       ├── reporte_produccion.json
+│       └── config_modelo_minimal.json
+│
+└── 05_Aplicacion/
+    └── app.py                                   # Aplicacion Streamlit operativa
+```
 
 ---
 
 ## Notebooks Desarrollados
 
-| Notebook | Descripción |
-|---|---|
-| `01_Set Up.ipynb` | Inicialización y creación de estructura |
-| `02_Calidad_datos.ipynb` | Validación de datos |
-| `03_EDA.ipynb` | Análisis exploratorio, correlaciones y análisis de ceros en CO2 |
-| `04_Transformacion_de_Variable.ipynb` | Codificación y escalado (Experimento A) |
-| `05_Modelizacion_Supervisada.ipynb` | Optimización de hiperparámetros |
-| `06_Series_de_tiempo.ipynb` | ARIMA para CO2 y consumo energético |
+| Notebook | Etapa | Descripcion |
+|---|---|---|
+| `01_Set Up.ipynb` | Setup | Estructura de carpetas, carga del dataset y split trabajo/validacion |
+| `02_Calidad_datos.ipynb` | Calidad | Nulidad, duplicados, tipos de datos y decisiones de limpieza |
+| `03_EDA.ipynb` | EDA | Correlaciones, distribucion del target, analisis de ceros en CO2 |
+| `04_Transformacion_de_Variable.ipynb` | Preprocesamiento | OHE + StandardScaler; construccion de features temporales para Exp B |
+| `05_Modelizacion_Supervisada.ipynb` | Entrenamiento + Seleccion | GridSearchCV, comparacion A vs B, ablacion de features y modelo minimal |
+| `06_Series_de_tiempo.ipynb` | Series de tiempo | ARIMA para CO2 y Usage_kWh |
+| `01_Preproduccion.ipynb` | Preproduccion | Evaluacion unica sobre validacion (10.512 registros no vistos) |
+| `02_Produccion.ipynb` | Produccion | Exportacion de pipelines `.joblib` a `03_Modelos/02_Produccion/` |
 
-## Resultados Principales
+---
 
-### Entrenamiento (test 30%, random_state=42)
-| Experimento | R² | RMSE | MAE |
-|---|---|---|---|
-| A — con variables físicas | 0.9923 | 0.0875 | 0.0062 |
-| B — sin variables físicas | 0.8470 | 0.3910 | 0.1933 |
+## Fuente de Datos
 
-### Preproducción (validación, n=10.512, datos no vistos)
-| Experimento | R² | RMSE | MAE | Diagnóstico |
-|---|---|---|---|---|
-| A — con variables físicas | 0.9959 | 0.0644 | 0.0048 | Generaliza correctamente |
-| B — sin variables físicas | 0.8745 | 0.3557 | 0.1732 | Generaliza correctamente |
-| B minimal — 7 features (producción) | 0.8715 | 0.3598 | 0.1790 | Generaliza correctamente |
-
-- **Variable más importante Exp A:** `Usage_kWh` (99.65% de importancia)
-- **Variables más importantes Exp B:** `Load_Type_Light_Load` (37.3%), `Leading_Current_Power_Factor` (36.3%), `Lagging_Current_Power_Factor` (13.0%)
-- **Predicción ARIMA CO2:** MAE = 0.0217
-- **Correlación CO2–Usage_kWh:** r = 0.988
+Steel Industry Energy Consumption Dataset
+UCI Machine Learning Repository — ID 851
+DAEWOO Steel Co. Ltd, Gwangyang, Corea del Sur
+Periodo: 1 enero 2018 – 31 diciembre 2018, granularidad 15 minutos, 35.040 registros
+https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
